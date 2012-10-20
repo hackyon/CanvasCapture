@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<title>CanvasCapture | Record HTML5 Canvas Animations</title>
+<link rel="shortcut icon" href="favicon.png" />
+
+<script type="text/javascript" src="javascripts/canvasCapture.js"></script>
+<script type="text/javascript">
+
+var Particle = function(x, y, color, size) {
+  this.x = x;
+  this.y = y;
+  this.color = color;
+  this.size  = size;
+  this.vx = 0;
+  this.vy = 0;
+};
+Particle.prototype.update = function() {
+  this.x += this.vx;
+  this.y += this.vy;
+  this.vx *= 0.95;
+  this.vy *= 0.95;
+};
+Particle.prototype.draw = function(canvas) {
+  var context = canvas.getContext("2d");
+
+  context.fillStyle = this.color;
+  context.beginPath();
+  context.arc(this.x, this.y, this.size, 0, Math.PI*2, true);
+  context.fill();
+};
+Particle.prototype.applyImpulse = function(speed, angle) {
+  this.vx += speed * Math.cos(angle);
+  this.vy += speed * Math.sin(angle);
+};
+Particle.prototype.attract = function(x, y) {
+  var deltaY = this.y - y;
+  var deltaX = this.x - x;
+
+  var angle = Math.atan(deltaY / deltaX);
+  if (x < this.x) angle = Math.PI + angle;
+  
+  var distance = Math.sqrt(deltaY*deltaY + deltaX*deltaX);
+  distance = Math.max(30, distance);
+  distance = Math.min(500, distance);
+  var speed = 1 / distance * 100;
+
+  this.applyImpulse(speed, angle);
+};
+
+
+window.onload = function() {
+  var canvas    = document.getElementById("canvas");
+  var context   = canvas.getContext("2d");
+
+  var about     = document.getElementById("about");
+  var h1        = document.getElementById("h1");
+  var status    = document.getElementById("status");
+  var timer     = document.getElementById("timer");
+  var elapsed   = document.getElementById("elapsed");
+  var bar       = document.getElementById("bar");
+  var record    = document.getElementById("record");
+  var download  = document.getElementById("download");
+
+  // Create the canvas animation recorder
+  var canvasCapture = new CanvasCapture(canvas);
+
+  // Layout the initial state of the particles
+  var size  = 5;
+  var color = "#000";
+  var particles = [];
+
+  var centerX = canvas.width/2;
+  var centerY = canvas.height/2;
+
+  // Draw random patterns (all patterns have 169 particles)
+  var rand = Math.random() * 5;
+  if (rand < 1) { // Less chance for this pattern to appear
+    
+    // Draw a simple square pattern
+    for (var x = centerX-150; x <= centerX+150; x += 25) {
+      for (var y = centerY-150; y <= centerY+150; y += 25) {
+        var particle = new Particle(x, y, color, size);
+        particles.push(particle);
+        particle.draw(canvas);
+      }
+    }
+
+  } else if (rand < 3) {
+  
+    // Draw a sunflower phyllotaxis pattern
+    var c = 12;
+    var angleRatio = 137.5 / 1;
+    for (var n = 1; n <= 169; n++) {
+      // Express in polar coords
+      var r = c * Math.sqrt(n);
+      var angle = n * angleRatio / 180 * Math.PI;
+
+      // Translate to Cartesian coords
+      var x = Math.cos(angle) * r;
+      var y = Math.sin(angle) * r;
+
+      var particle = new Particle(centerX + x, centerY + y, color, size);
+      particles.push(particle);
+      particle.draw(canvas);
+    }
+
+  } else {
+
+    // Draw a star inside a circle
+    var particle = new Particle(centerX, centerY, color, size);
+    particles.push(particle);
+    particle.draw(canvas);
+
+    // Define coords for one "spike" of the star
+    var coords = [ 
+    { x: 14.5 , y: 20 },
+    { x: 0    , y: 40 },  { x: 29   , y: 40 },
+    { x: 43.5 , y: 60 },  { x: 14.5 , y: 60 },  { x: -14.5, y: 60 },
+    { x: -30  , y: 80 },  { x: -10  , y: 80 },  { x: 10   , y: 80 },  { x: 30   , y: 80 },
+    { x: 20   , y: 100 }, { x: 0    , y: 100 }, { x: -20  , y: 100 },
+    { x: 10   , y: 120 }, { x: -10  , y: 120 },
+    { x: 0    , y: 140 }];
+
+    // Draw the spike 5 times to form a star
+    while (coords.length > 0) {
+      var coord = coords.pop();
+      var x = coord.x;
+      var y = coord.y;
+
+      for (var i = 0; i < 5; i++) {
+        var particle = new Particle(centerX + x, centerY + y, color, size);
+        particles.push(particle);
+        particle.draw(canvas);
+
+        var angle = Math.PI*2/5;
+        var x_ = x * Math.cos(angle) - y * Math.sin(angle);
+        var y_ = x * Math.sin(angle) + y * Math.cos(angle);
+        x = x_;
+        y = y_;
+      }
+    }
+   
+    // Draw a circle around the star (to sum up to 169 stars)
+    var r = 200;
+    var angle = 0;
+    for (var i = 0; i < 88; i++) {
+      x = Math.cos(angle) * r;
+      y = Math.sin(angle) * r;
+
+      angle += Math.PI * 2 / 88;
+      
+      var particle = new Particle(centerX + x, centerY + y, color, size);
+      particles.push(particle);
+      particle.draw(canvas);
+    }
+  }
+
+  // Fade the page in
+  canvas.className   += " fadeIn";
+  about.className    += " fadeIn";
+  h1.className       += " fadeIn";
+
+  // Animation frames from browser
+  // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+  window.requestAnimFrame = (function(){
+      return window.requestAnimationFrame       || 
+             window.webkitRequestAnimationFrame || 
+             window.mozRequestAnimationFrame    || 
+             window.oRequestAnimationFrame      || 
+             window.msRequestAnimationFrame     || 
+             function (callback) {
+               window.setTimeout(callback, 1000 / 60); // Default to 60fps
+             };
+  })();
+
+  // Capture mouse events for the canvas
+  var holding = false;
+  var mouseX = 0;
+  var mouseY = 0;
+  canvas.onmousedown = function(e) {
+    holding = true;
+    mouseX = e.clientX - canvas.offsetLeft;
+    mouseY = e.clientY - canvas.offsetTop;
+  };
+  window.onmouseup = function(e) {
+    holding = false;
+  };
+  window.onmousemove = function(e) {
+    mouseX = e.clientX - canvas.offsetLeft;
+    mouseY = e.clientY - canvas.offsetTop;
+  };
+
+  // Shows a warning message under the controls
+  var warningTimeout = null;
+  var showWarning = function(warning) {
+    var element = document.getElementById("warning");
+    element.innerText = warning;
+    element.style.opacity = "1";
+
+    // The warning fades away over 1s
+    clearTimeout(warningTimeout);
+    warningTimeout = setTimeout(function() {
+      element.className += " fadeOut";
+      warningTimeout = setTimeout(clearWarning, 1000);
+    }, 3000);
+  };
+  var clearWarning = function() {
+    var element = document.getElementById("warning");
+    element.style.opacity = "0";
+    element.className = element.className.replace("fadeOut", "").trim();
+  };
+
+  // Register callbacks for the controls (icons, status bar, etc)
+  var recording = false;
+  var rendering = false;
+  var rendered  = false;
+  var LIMIT = 5; // Limit the captures to 5 seconds for the demo
+
+  // Capture key events
+  document.onkeypress = function(e) {
+    e = window.event || e;
+    var key = (typeof e.which === "number") ? e.which : e.keyCode;
+    switch (key) {
+      case 32:
+        record.onclick();
+        break;
+      case 13:
+        download.onclick();
+        break;
+    }
+  };
+
+  record.onclick = function(e) {
+    if (rendering || rendered) {
+      showWarning("Video render has begun; cannot do any more recording.");
+      return false;
+    }
+
+    if (!recording) {
+      var duration = canvasCapture.getDuration();
+      if (duration >= LIMIT * 1000) {
+        showWarning("Recording limit of " + LIMIT + "s reached.");
+        return false;
+      }
+
+      recording = true;
+      canvasCapture.start();
+      clearWarning();
+
+      record.className   = "icon recording";
+      download.className = "icon render";
+      status.innerHTML   = "Recording";
+    } else {
+      recording = false;
+      canvasCapture.stop();
+      clearWarning();
+
+      record.className = "icon record";
+      status.innerHTML = "Paused recording";
+    }
+    
+    return false;
+  };
+
+  download.onclick = function(e) {
+    var duration = canvasCapture.getDuration();
+    if (duration <= 0) {
+      showWarning("There is no recording to render.");
+      return false;
+    }
+
+    // Return true if renered since the href will be set accordingly
+    if (rendered) return true;
+
+    if (!rendering) {
+      rendering = true;
+      recording = false;
+      canvasCapture.render();
+      clearWarning();
+
+      record.className   = "icon record disabled";
+      download.className = "icon render disabled";
+      status.innerHTML   = "Rendering";
+      bar.style.width    = "0%";
+
+      duration = Math.min(duration, LIMIT * 1000);
+      if (duration > 0) {
+        elapsed.innerHTML = (duration / 1000).toFixed(2) + "s";
+      }
+    } else {
+      showWarning("Please wait while we prepare your video.");
+    }
+    return false;
+  };
+
+  canvasCapture.addDurationListener(function(duration) {
+    if (!recording) return;
+
+    duration = Math.min(duration, LIMIT * 1000);
+    if (duration > 0) {
+      timer.innerHTML = (duration / 1000).toFixed(2) + "s";
+      bar.style.width = Math.floor(duration / 50) + "%";
+    }
+
+    // Limit the recording for the demo
+    if (duration >= LIMIT * 1000) {
+      recording = false;
+      canvasCapture.stop();
+
+      showWarning("Recording limit of " + LIMIT + "s reached.");
+      record.className = "icon disabled";
+      status.innerHTML = "Recording limit reached";
+    }
+  });
+
+  canvasCapture.addRenderProgressListener(function(progress) {
+    if (!rendering) return;
+
+    if (progress > 0) {
+      timer.innerHTML = progress + "%";
+      bar.style.width = progress + "%";
+    }
+
+    // Update the download href once render is complete
+    if (progress >= 100) {
+      rendering = false;
+      rendered  = true;
+
+      download.href = canvasCapture.getDownloadURL();
+      download.download = "canvas.mp4";
+      
+      download.className = "icon download";
+      status.innerHTML   = "Ready for download";
+
+      clearWarning();
+    }
+  });
+
+  // Canvas animation
+  var animate = function() {
+    window.requestAnimFrame(animate);
+
+    // Draw the next frame in the animation
+    context.fillStyle = "#fff";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    for (var i = 0; i < particles.length; i++) {
+      var particle = particles[i];
+      if (holding) particle.attract(mouseX, mouseY);
+      particle.update();
+      particle.draw(canvas);
+    }
+  };
+  animate();
+};
+</script>
+
+<!-- Google Web Fonts and YUI reset -->
+<link href='http://fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css' />
+<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.9.0/build/reset/reset-min.css" />
+
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; font-family: 'Lato',Arial,sans-serif; font-size: 13px; line-height: 18px; }
+  body { min-width: 960px; position: relative; }
+
+  #about { position: absolute; top: 50%; left: 50%; margin: -200px 0 0 -490px; width: 280px; z-index: 1; opacity: 0; }
+  #about.fadeIn { margin-left: -470px; }
+  #about h1 { font-size: 40px; line-height:40px; font-weight: 400; margin: 10px 10px; }
+  #about h1.fadeIn { margin: 10px 0; }
+  #about p { margin: 5px 0 10px 0; text-align: justify; color: #555; }
+  #about a, a:visited { color: #999; }
+  #about a:hover { text-decoration: none; }
+  #canvas { position: absolute; top: 50%; left: 50%; margin: -240px 0 0 -165px; opacity: 0; border: 1px solid #dddddd; }
+
+  #controls { text-align: center; }
+  #controls a { display: inline-block; margin: 10px 10px 30px 0; opacity: 0.8 }
+  #controls a:hover { opacity: 1 }
+  #controls a.disabled, #controls a.disabled:hover { opacity: 1 }
+
+  .icon { background: url(/images/icons.png) no-repeat; text-indent: -9999px; width: 61px; height: 61px; }
+  .record.disabled { background-position: 0 0; }
+  .record { background-position: -244px 0; }
+  .recording { background-position: -305px 0; }
+  .render { background-position: -122px 0; }
+  .render.disabled { background-position: -61px 0; }
+  .download { background-position: -183px 0; }
+
+  #status { margin: 0; line-height: 18px; color: #222; float: left; }
+  #timer  { margin: 0; line-height: 18px; color: #ccc; float: right; }
+  #bar    { background: #ccc; height: 3px; width: 0; display: block; }
+  #elapsed { text-align: left; color: #ccc; }
+
+  #warning { margin-top: 30px; padding: 5px 10px; border: 1px solid; border-radius: 2px; color: #858121; background-color: #fffb8f; border-color: #9c9838; opacity: 1; margin: 10px 0; opacity: 0; }
+
+  .fadeIn { opacity: 1 !important; transition: all 1s ease-in-out; -webkit-transition: all 1s ease-in-out; -moz-transition: all 1s ease-in-out; }
+  .fadeOut { opacity: 0 !important; transition: opacity 1s ease-in-out; -webkit-transition: opacity 1s ease-in-out; -moz-transition: opacity 1s ease-in-out; }
+  .clear { clear: both; }
+</style>
+</head>
+<body>
+  <div id="about">
+    <h1 id="h1">CanvasCapture</h1>
+    <p><a href="http://github.com/badassdon/CanvasCapture/" target="_blank">CanvasCapture</a> is a tool for recording canvas animations. It takes frame-by-frame snapshots of the canvas and renders them into a video on the server with ffmpeg.</p>
+    <p>The <a href="http://github.com/badassdon/CanvasCapture" target="_blank">source for this project</a> is available under the MIT License. However, ffmpeg (with the necessary codecs) is under the LGPL license.</p>
+    <p>Created by <a href="http://www.badassdon.com/">badassdon</a>.</p>
+    <div id="controls">
+      <a href="#" id="record" class="icon record">Record</a>
+      <a href="#" id="download" class="icon render disabled">Download</a>
+      <div class="clear">
+        <div id="status"></div>
+        <div id="timer"></div>
+      </div>
+      <div id="bar" class="clear"></div>
+      <div id="elapsed"></div>
+    </div>
+
+    <div id="warning"></div>
+  </div>
+  <canvas id="canvas" width="640" height="480">Canvas is unsupported on this browser.</canvas>
+</body>
+</html>
+
