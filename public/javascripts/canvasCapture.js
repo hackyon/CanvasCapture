@@ -181,7 +181,7 @@
    * The download URL for the rendered video.
    */
   CanvasCapture.prototype.getDownloadURL = function() {
-    return 'capture/' + this._captureId + '/canvas.mp4';
+    return this._prefix + 'capture/' + this._captureId + '/canvas.mp4';
   };
 
 

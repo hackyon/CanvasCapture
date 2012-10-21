@@ -15,7 +15,8 @@ app.configure(function(){
   /**
    * CanvasCapture is available as middleware so you can plug it right
    * into an existing server. The capture URLs can be namespaced by
-   * specifying a prefix for the middleware:
+   * specifying a prefix for the middleware (you will also have to specify
+   * a prefix on the client-side too):
    *    app.use('/prefix', canvasCapture());
    *
    * The bodyParser middleware must be added before CanvasCapture.
