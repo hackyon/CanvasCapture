@@ -18,11 +18,9 @@ app.configure(function(){
    * specifying a prefix for the middleware:
    *    app.use('/prefix', canvasCapture());
    *
-   * The bodyParser and sesssion middlewares must be added before 
-   * CanvasCapture.
+   * The bodyParser middleware must be added before CanvasCapture.
    */
   app.use(express.bodyParser());
-  app.use(express.session());
 
   var canvasCapture = require('./lib/canvasCapture');
   app.use(canvasCapture());
