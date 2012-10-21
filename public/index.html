@@ -215,7 +215,7 @@ window.onload = function() {
   var recording = false;
   var rendering = false;
   var rendered  = false;
-  var LIMIT = 5; // Limit the captures to 5 seconds for the demo
+  var LIMIT = 1; // Limit the captures to 1 seconds for the demo
 
   // Capture key events
   document.onkeypress = function(e) {
@@ -300,7 +300,7 @@ window.onload = function() {
     duration = Math.min(duration, LIMIT * 1000);
     if (duration > 0) {
       timer.innerHTML = (duration / 1000).toFixed(2) + "s";
-      bar.style.width = Math.floor(duration / 50) + "%";
+      bar.style.width = Math.floor(duration / 10 / LIMIT) + "%";
     }
 
     // Limit the recording for the demo
