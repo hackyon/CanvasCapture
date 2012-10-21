@@ -8,8 +8,6 @@
     "express": "3.0.0rc4",
     "fluent-ffmpeg": "1.2.0",
     "async": "*",
-    "rimraf": "*",
-    "redis": "*",
-    "hiredis": "*"
+    "rimraf": "*"
   }
 }
