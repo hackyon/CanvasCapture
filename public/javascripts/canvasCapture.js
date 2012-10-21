@@ -85,10 +85,10 @@
 
     this._frameN    = 0;
     this._captureId = null;
-    
-    this._duration  = 0;    // Duration of capture
-    this._previousTime = 0; // Time of previous frame
+    this._frameQueue = [];    // Queues up frames
 
+    this._duration  = 0;      // Duration of capture
+    this._previousTime = 0;   // Time of previous frame
     this._renderProgress = 0; // Last known progress of the rendering
 
     this._durationListeners = [];
@@ -140,7 +140,7 @@
       fps: this._frameN / (this._duration / 1000)
     };
     var url = this._prefix + 'capture/' + this._captureId + '/render';
-    send("POST", url, data);
+    send("POST", url, data, { 'Content-Type': 'application/x-www-form-urlencoded' });
 
     var self = this;
     setTimeout(function() {
@@ -208,6 +208,13 @@
     var url = this._prefix + "capture";
     send("GET", url, null, null, function(response) {
       self._captureId = response.responseText;
+      for (var i = 0; i < self._frameQueue.length; i++) {
+        var frameN = self._frameQueue[i].frameN;
+        var data   = self._frameQueue[i].data;
+        
+        var url    = self._prefix + 'capture/' + self._captureId + '/frame/' + frameN;
+        send("POST", url, data, { 'Content-Type': 'image/png' });
+      }
     });
   };
 
@@ -230,11 +237,20 @@
 
     // Capture the canvas as a PNG
     var data = this._canvas.toDataURL("image/png");
-    data = data.substring(22);
+    data = data.substring(22); // Extract the base64 data
 
-    // Send the frame
-    var url = this._prefix + 'capture/' + this._captureId + '/frame/' + this._frameN;
-    send("POST", url, data, { 'Content-Type': 'image/png' });
+    if (this._captureId) {
+      // Send the frame if captureId has been received
+      var url = this._prefix + 'capture/' + this._captureId + '/frame/' + this._frameN;
+      send("POST", url, data, { 'Content-Type': 'image/png' });
+
+    } else {
+      // Queue up the frame if captureId has not been received
+      this._frameQueue.push({
+        frameN: this._frameN,
+        data:   data
+      });
+    }
 
     this._frameN += 1;
 

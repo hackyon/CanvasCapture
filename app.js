@@ -10,6 +10,7 @@ app.configure(function(){
   app.use(express.logger('dev'));
   app.use(express.methodOverride());
   app.use(express.cookieParser('8jS/z3L/b8svoytzdOLzwqBCvsPsCF70kU8t2dwUieo='));
+  app.use(express.static(path.join(__dirname, 'public')));
 
   /**
    * CanvasCapture is available as middleware so you can plug it right
@@ -25,10 +26,6 @@ app.configure(function(){
 
   var canvasCapture = require('./lib/canvasCapture');
   app.use(canvasCapture());
-
-
-  app.use(require('less-middleware')({ src: __dirname + '/public' }));
-  app.use(express.static(path.join(__dirname, 'public')));
 });
 
 app.configure('development', function(){
