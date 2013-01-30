@@ -23,7 +23,7 @@ app.configure(function(){
    */
   app.use(express.bodyParser());
 
-  var canvasCapture = require('./lib/canvasCapture');
+  var canvasCapture = require('./canvasCapture.server');
   app.use(canvasCapture());
 });
 
