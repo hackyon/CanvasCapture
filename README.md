@@ -76,7 +76,7 @@ If you want to change the code, you can run ```grunt watch``` so that changes wi
 
 Contributions
 --------------------------------------
-Contributions are welcomed. There are no guidelines for contributions at this moment. Some guidelines may be set up in the future. If you want to contribute and need help understanding the code, don't hesitate to contact me.
+Contributions are welcomed. There are no guidelines for contributions at this moment, but some guidelines may be set up in the future. If you want to contribute and need help understanding the code, don't hesitate to contact me.
 
 
 License
