@@ -1,13 +1,10 @@
 {
-  "name": "CanvasCapture",
+  "name": "CanvasCapture.grunt",
   "version": "0.1.0",
-  "scripts": {
-    "start": "node app"
-  },
+  "author": "Donald Lau <don@badassdon.com>",
   "dependencies": {
-    "express": "3.0.0rc4",
-    "fluent-ffmpeg": "1.2.0",
-    "async": "*",
-    "rimraf": "*"
+    "grunt": "0.3.x",
+    "grunt-contrib-copy": "*",
+    "grunt-contrib-compress": "*"
   }
 }

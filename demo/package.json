@@ -1,0 +1,13 @@
+{
+  "name": "CanvasCapture",
+  "version": "0.1.0",
+  "scripts": {
+    "start": "node app"
+  },
+  "dependencies": {
+    "express": "3.0.0rc4",
+    "fluent-ffmpeg": "1.2.0",
+    "async": "*",
+    "rimraf": "*"
+  }
+}

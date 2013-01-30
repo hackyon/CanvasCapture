@@ -48,7 +48,7 @@
     // Register the callback if it is available
     if (callback) {
       request.onreadystatechange = function() {
-        if(request.readyState == 4){
+        if(request.readyState === 4){
           //request.responseXML -- DOM
           //request.responseText
           callback(request);
@@ -79,7 +79,9 @@
 
     this._prefix  = '';
     if (prefix) {
-      if (prefix.slice(-1) !== '/') prefix += '/';
+      if (prefix.slice(-1) !== '/') {
+        prefix += '/';
+      }
       this._prefix = prefix;
     }
 
@@ -108,7 +110,7 @@
       this._captureFrame();
       return true;
     }
-    return (this._state == STATES.CAPTURING);
+    return (this._state === STATES.CAPTURING);
   };
 
   /**
@@ -222,7 +224,9 @@
    * Captures a frame of the canvas.
    */
   CanvasCapture.prototype._captureFrame = function() {
-    if (this._state != STATES.CAPTURING) return;
+    if (this._state !== STATES.CAPTURING) {
+      return;
+    }
    
     // Setup the next frame capture
     var self = this;
@@ -264,14 +268,16 @@
    * Polls the server for the rendering progress every 0.5s.
    */
   CanvasCapture.prototype._updateRenderProgress = function() {
-    if (this._state != STATES.RENDERING) return;
+    if (this._state !== STATES.RENDERING) {
+      return;
+    }
 
     setTimeout(function() { self._updateRenderProgress(); }, 500);
 
     var self = this;
     var url  = this._prefix + 'capture/' + this._captureId + '/render-progress';
     send("GET", url, null, null, function(response) {
-      self._renderProgress = parseInt(response.responseText);
+      self._renderProgress = parseInt(response.responseText, 10);
       if (self._renderProgress >= 100) {
         self._state = STATES.DOWNLOAD;
       }

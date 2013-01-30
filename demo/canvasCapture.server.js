@@ -1,3 +1,13 @@
+/**
+ * CanvasCapture v0.1.0 
+ *
+ * CanvasCapture is a library for recording HTML5 canvas animations as
+ * videos. Frames are sampled from the canvas and sent to the server
+ * for rendering with ffmpeg.
+ *
+ * Distributed under the terms of the MIT License.
+ */
+
 var fs      = require('fs')
   , path    = require('path')
   , async   = require('async')
