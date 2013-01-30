@@ -81,7 +81,7 @@ Contributions are welcomed. There are no guidelines for contributions at this mo
 
 License
 --------------------------------------
-The source is freely available under the terms of the MIT License. 
+The source is freely available under the terms of the MIT License. However, ffmpeg (with the necessary codecs) is under the LGPL license.
 
 Feel free to download, modify, and use for personal or commercial projects. I would appreciate a pingback if you find the project useful, but it's certainly not required. 
 
