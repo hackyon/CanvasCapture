@@ -12,8 +12,8 @@ Running the Demo on localhost
 --------------------------------------
 The best way to try out CanvasCapture is to run the demo on localhost. Here are step-by-step instructions:
 
-1. [Install Node.js and npm](https://github.com/joyent/node/wiki/Installation)
-2. [Install ffmpeg](http://ffmpeg.org/download.html)
+1. Install [Node.js and npm](https://github.com/joyent/node/wiki/Installation)
+2. Install [ffmpeg](http://ffmpeg.org/download.html)
 3. ```git clone https://github.com/badassdon/CanvasCapture.git```
 4. ```cd CanvasCapture/demo```
 5. ```npm install```
@@ -64,7 +64,7 @@ Build
 --------------------------------------
 The project is built with [Grunt](http://gruntjs.com/). Luckily, Grunt is available as a npm module, and so building is a breeze. Here are step-by-step instructions:
 
-1. [Install Node.js and npm](https://github.com/joyent/node/wiki/Installation) if necessary
+1. Install [Node.js and npm](https://github.com/joyent/node/wiki/Installation) if necessary
 2. Go to the project directory (containing grunt.js)
 3. ```npm install``` - this fetches the npm modules for the grunt build, but not the demo
 4. ```grunt```
