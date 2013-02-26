@@ -1,4 +1,4 @@
-[CanvasCapture](http://canvascapture.hackyon.com)  - Record Canvas Animations
+CanvasCapture - Record Canvas Animations
 =============================================================================
 
 CanvasCapture records HTML5 canvas animations. Animation frames on the canvas are captured and sent to a Node.js backend and rendered into a video with [ffmpeg](http://ffmpeg.org/). 
